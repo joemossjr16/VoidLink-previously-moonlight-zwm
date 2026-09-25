@@ -22,6 +22,15 @@ jobs:
       - name: xcodebuild version
         run: xcodebuild -version
 
+      - name: Resolve Swift Package dependencies
+        run: |
+          xcodebuild -resolvePackageDependencies \
+            -project VoidLink.xcodeproj \
+            -scheme VoidLink || \
+          xcodebuild -resolvePackageDependencies \
+            -project VoidLink.xcodeproj \
+            -target VoidLink
+
       - name: Build VoidLink (iOS Simulator, no signing)
         run: |
           set -o pipefail
