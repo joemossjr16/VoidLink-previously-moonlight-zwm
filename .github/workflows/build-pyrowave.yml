@@ -37,7 +37,7 @@ jobs:
       - name: Build VoidLink (iOS Simulator, no signing)
         run: |
           set -o pipefail
-          if grep -qx "    VoidLink" schemes.log; then
+          if grep -qE "^[[:space:]]+VoidLink$" schemes.log; then
             BUILD_ARG="-scheme VoidLink"
           else
             BUILD_ARG="-target VoidLink"
