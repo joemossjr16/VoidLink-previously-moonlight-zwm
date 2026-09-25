@@ -22,6 +22,9 @@ jobs:
       - name: xcodebuild version
         run: xcodebuild -version
 
+      - name: List available schemes
+        run: xcodebuild -list -project VoidLink.xcodeproj | tee schemes.log
+
       - name: Resolve Swift Package dependencies
         run: |
           xcodebuild -resolvePackageDependencies \
@@ -34,10 +37,16 @@ jobs:
       - name: Build VoidLink (iOS Simulator, no signing)
         run: |
           set -o pipefail
+          if grep -qx "    VoidLink" schemes.log; then
+            BUILD_ARG="-scheme VoidLink"
+          else
+            BUILD_ARG="-target VoidLink"
+          fi
+          echo "Building with: $BUILD_ARG"
           xcodebuild build \
+            $BUILD_ARG \
             -project VoidLink.xcodeproj \
-            -target VoidLink \
-            -sdk iphonesimulator \
+            -destination "generic/platform=iOS Simulator" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             | tee build.log | xcpretty || true
