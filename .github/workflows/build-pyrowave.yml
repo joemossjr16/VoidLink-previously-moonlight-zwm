@@ -30,7 +30,7 @@ jobs:
           xcodebuild -resolvePackageDependencies \
             -project VoidLink.xcodeproj \
             -derivedDataPath build_dd \
-            -target VoidLink
+            -scheme VoidLink
 
       - name: Build VoidLink (iOS Simulator, no signing)
         timeout-minutes: 15
