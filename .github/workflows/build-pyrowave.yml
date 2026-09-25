@@ -7,9 +7,10 @@ on:
 
 jobs:
   build-simulator:
-    # Simulator + no code signing: fastest possible real-compiler feedback
-    # while the PyroWave integration is still being iterated on. Switch to a
-    # device build with signing once this is clean.
+    # Generic iOS device destination, signing disabled: this project's
+    # VoidLink scheme has no simulator destination configured (only a
+    # physical-device one), so this is a compile-only check, not something
+    # that can run. Switch to a real device build with signing once clean.
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -32,15 +33,15 @@ jobs:
             -derivedDataPath build_dd \
             -scheme VoidLink
 
-      - name: Build VoidLink (iOS Simulator, no signing)
+      - name: Build VoidLink (generic iOS device, no signing)
         timeout-minutes: 15
         run: |
           set -o pipefail
           xcodebuild build \
-            -target VoidLink \
+            -scheme VoidLink \
             -project VoidLink.xcodeproj \
             -derivedDataPath build_dd \
-            -sdk iphonesimulator \
+            -destination "generic/platform=iOS" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             > build.log 2>&1
