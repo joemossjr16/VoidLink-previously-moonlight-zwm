@@ -26,48 +26,52 @@ jobs:
       - name: List available schemes
         run: xcodebuild -list -project VoidLink.xcodeproj | tee schemes.log
 
-      - name: Resolve Swift Package dependencies
-        run: |
-          xcodebuild -resolvePackageDependencies \
-            -project VoidLink.xcodeproj \
-            -target VoidLink
-
-      # This repo's own SVGKit/CocoaLumberjack SPM dependency fails to build
-      # on this runner's Xcode/SDK combination regardless of what we do here
-      # (tried -scheme with a shared derivedDataPath, generic device
-      # destinations, simulator destinations by UDID, a retry pass -- all
-      # blocked on environment gaps unrelated to PyroWave: no simulator
-      # destination on this scheme, no iOS 18.0 device platform installed).
-      # VoidLink's own sources (including ours) depend on SVGKit in the
-      # target graph, so a full xcodebuild never reaches them. Instead,
-      # syntax-check our new files directly with clang/the Metal compiler,
-      # bypassing the Xcode project and its SVGKit dependency entirely.
+      # No separate -resolvePackageDependencies step: that phase alone doesn't
+      # run SPM build-tool-plugin/prebuild scripts the way a real build
+      # action does, which is a known cause of exactly this "module map file
+      # not found" error for packages (like CocoaLumberjack, here consumed by
+      # SVGKit) that generate their modulemap as a build step rather than
+      # having a static one. Let the build action resolve on its own instead.
+      #
+      # Also try up to 3 passes: -target manual-order building has processed
+      # SVGKit before its own CocoaLumberjack dependency in every attempt so
+      # far (confirmed not a parallelism race -- -jobs 1 failed *faster*, not
+      # slower), but a pass that already has CocoaLumberjack's build products
+      # on disk from a *previous* pass no longer needs the ordering to be
+      # right. If this doesn't clear it in 3 tries, it needs a real scheme
+      # (built from Xcode's GUI) or Xcode's package-cache tooling -- see
+      # docs/pyrowave-ios-plan.md.
       - name: Best-effort full xcodebuild (informational only)
         continue-on-error: true
-        timeout-minutes: 15
+        timeout-minutes: 25
         run: |
-          # Confirmed NOT a parallelism race: -jobs 1 (fully serial) failed
-          # even faster than parallel runs. -target manual-order building
-          # genuinely processes SVGKit before its own CocoaLumberjack
-          # dependency, independent of concurrency. A real fix needs a
-          # properly configured scheme (schemes respect dependency order;
-          # this project's has no usable destination on CI, so it's never
-          # actually been exercised) or Xcode's own package-cache tooling,
-          # not something to keep guessing at blind over CI round-trips. See
-          # docs/pyrowave-ios-plan.md.
-          xcodebuild build \
-            -target VoidLink \
-            -project VoidLink.xcodeproj \
-            -sdk iphonesimulator \
-            -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            > build.log 2>&1 || true
-          if grep -q "BUILD SUCCEEDED" build.log; then
+          SUCCESS=0
+          for attempt in 1 2 3; do
+            echo "::group::Attempt $attempt"
+            xcodebuild build \
+              -target VoidLink \
+              -project VoidLink.xcodeproj \
+              -sdk iphonesimulator \
+              -configuration Debug \
+              CODE_SIGNING_ALLOWED=NO \
+              > "build_attempt${attempt}.log" 2>&1
+            if grep -q "BUILD SUCCEEDED" "build_attempt${attempt}.log"; then
+              echo "BUILD SUCCEEDED on attempt $attempt"
+              SUCCESS=1
+              echo "::endgroup::"
+              break
+            else
+              echo "Attempt $attempt did not succeed."
+              tail -n 60 "build_attempt${attempt}.log"
+            fi
+            echo "::endgroup::"
+          done
+          cat build_attempt*.log > build.log
+          if [ "$SUCCESS" -eq 1 ]; then
             echo "BUILD SUCCEEDED"
           else
-            echo "BUILD FAILED (see build.log artifact for full output)"
+            echo "BUILD FAILED after 3 attempts (see build.log artifact for full output)"
           fi
-          tail -n 100 build.log
 
       - name: Syntax-check PyroWave files directly (clang, bypassing SVGKit)
         run: |
