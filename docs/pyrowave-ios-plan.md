@@ -1,9 +1,14 @@
 # PyroWave for VoidLink (iOS/tvOS): status and next steps
 
 Branch: `pyrowave` (this repo and the `moonlight-common-c` submodule, forked to
-`joemossjr16/voidlink-c`). Written without Mac/Xcode access -- **nothing here has
-been compiled or run**. Treat every file below as a first draft to fix against
-real build errors, not working code.
+`joemossjr16/voidlink-c`). Written without Mac/Xcode access, but a GitHub
+Actions macOS runner (`.github/workflows/build-pyrowave.yml`) now confirms
+every new PyroWave file **syntax-checks cleanly** with real clang/Metal
+compiler invocations (see "Build and iterate" below) -- still, nothing has
+been linked, run, or looked at on a real device or in the Simulator, and
+integration into `VoidLink.xcodeproj`'s own build hasn't been proven (it's
+blocked by a pre-existing, unrelated SVGKit issue in this fork). Treat
+"compiles" as confirmed, "actually works" as not yet checked.
 
 ## What upstream PyroWave provides for Apple platforms
 
@@ -76,15 +81,46 @@ plane textures via compute shaders into a caller-supplied `id<MTLCommandBuffer>`
    `[PyroWaveDecoderRenderer isSupported]`, SDR-only, off by default, with a
    bitrate/bandwidth warning) that OR's in `VIDEO_FORMAT_PYROWAVE` /
    `VIDEO_FORMAT_PYROWAVE_444`.
-4. **Build and iterate.** Set up a GitHub Actions macOS runner workflow to
-   `xcodebuild` the target and surface real compiler errors -- the fastest
-   available feedback loop given there's no local Mac in this session. Expect
-   several rounds of fixes: the `__bridge` casts, the exact `pyrowave_metal.h`
-   struct field names, and the pbxproj wiring are all first-draft guesses
-   against the header, not verified against a real compiler.
-5. **Code signing**, once it builds: the user has an Apple Developer account
-   already; needs a certificate + provisioning profile added as repo secrets to
-   produce an installable IPA rather than a simulator-only build.
+4. **Build and iterate -- DONE, green.** `.github/workflows/build-pyrowave.yml`
+   on a macOS GitHub Actions runner now confirms every new PyroWave file
+   (`third_party/pyrowave-metal/{pyrowave_common.mm,pyrowave_decoder.mm,
+   pyrowave_bitstream.cpp}`, `PyroWaveDecoderRenderer.m`,
+   `PresentPyroWavePlanes.metal`) syntax-checks cleanly with real
+   clang/`xcrun metal` invocations -- the `__bridge` casts and
+   `pyrowave_metal.h` struct usage in `PyroWaveDecoderRenderer.m` are correct.
+   Getting here took working around several environment issues in this fork
+   unrelated to PyroWave: the `VoidLink` scheme has no Simulator destination
+   (only a physical-device one, and this runner doesn't have the iOS 18.0
+   device platform installed either), and `VoidLink`'s own sources (ours
+   included) sit behind a pre-existing broken `SVGKit`/`CocoaLumberjack` SPM
+   dependency in the target graph, so a full `xcodebuild` of the whole
+   project has never actually reached any of VoidLink's own files on this
+   runner. The workflow keeps a best-effort full build as
+   `continue-on-error: true` for visibility, and gates on a direct
+   `clang -fsyntax-only` pass instead, which is what actually answers "does
+   our code compile."
+   **Not yet exercised: linking and running.** Syntax-only checks catch type
+   errors and API misuse but not link errors (missing symbols, wrong
+   architecture) or runtime behavior -- those still need either a real device
+   build (next step) or the whole-project SVGKit issue fixed so the app
+   target itself builds.
+5. **Xcode project pbxproj wiring -- done alongside the syntax-check work.**
+   `PBXFileReference`/`PBXBuildFile`/group/Sources entries for all new files
+   were added against the `VoidLink` (iOS) target, matching this project's
+   existing hand-added-file convention (custom `A701...` IDs), plus
+   `$(PROJECT_DIR)/third_party/pyrowave-metal` in `HEADER_SEARCH_PATHS`. This
+   is what the CI workflow's own project-level build step exercises (even
+   though it can't get past SVGKit on this runner) -- it hasn't been
+   validated by a successful whole-project build yet, so treat it as likely
+   correct but not proven.
+6. **Fix (or route around) the pre-existing SVGKit/CocoaLumberjack SPM
+   issue**, if a real device build is wanted without waiting on upstream:
+   this blocks the *whole* VoidLink target, not anything PyroWave-specific,
+   and was already broken before this branch existed.
+7. **Code signing**, once the whole app builds: the user has an Apple
+   Developer account already; needs a certificate + provisioning profile
+   added as repo secrets to produce an installable IPA rather than a
+   simulator/device-generic-only build.
 6. **Visual verification on the iPad (M5 -- comfortably above the Apple7 GPU
    minimum)** once an IPA installs: confirm color is right (the BT.709 math in
    `PresentPyroWavePlanes.metal` is unverified against real output) and that
