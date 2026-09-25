@@ -38,8 +38,13 @@ jobs:
         timeout-minutes: 15
         run: |
           set -o pipefail
-          SIM=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[0].name' | head -1)
-          echo "Using simulator: $SIM"
+          echo "--- Available runtimes ---"
+          xcrun simctl list runtimes available
+          echo "--- Available iOS devices ---"
+          xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | "\(.key): \(.value | map(.name) | join(", "))"'
+
+          SIM_UDID=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[0].udid' | head -1)
+          echo "Using simulator UDID: $SIM_UDID"
           if grep -qE "^[[:space:]]+VoidLink$" schemes.log; then
             BUILD_ARG="-scheme VoidLink"
           else
@@ -49,7 +54,7 @@ jobs:
           xcodebuild build \
             $BUILD_ARG \
             -project VoidLink.xcodeproj \
-            -destination "platform=iOS Simulator,name=$SIM" \
+            -destination "platform=iOS Simulator,id=$SIM_UDID" \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             > build.log 2>&1
