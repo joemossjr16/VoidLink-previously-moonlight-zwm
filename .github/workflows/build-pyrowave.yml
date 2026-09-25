@@ -35,6 +35,7 @@ jobs:
             -target VoidLink
 
       - name: Build VoidLink (iOS Simulator, no signing)
+        timeout-minutes: 15
         run: |
           set -o pipefail
           SIM=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[0].name' | head -1)
@@ -45,7 +46,7 @@ jobs:
             BUILD_ARG="-target VoidLink"
           fi
           echo "Building with: $BUILD_ARG"
-          timeout 900 xcodebuild build \
+          xcodebuild build \
             $BUILD_ARG \
             -project VoidLink.xcodeproj \
             -destination "platform=iOS Simulator,name=$SIM" \
