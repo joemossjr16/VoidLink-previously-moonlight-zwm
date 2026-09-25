@@ -117,13 +117,19 @@ plane textures via compute shaders into a caller-supplied `id<MTLCommandBuffer>`
    issue**, if a real device build is wanted without waiting on upstream:
    this blocks the *whole* VoidLink target, not anything PyroWave-specific,
    and was already broken before this branch existed.
-   Ruled out on CI: it is **not** a build-parallelism race (`-jobs 1`, fully
-   serial, failed *faster* than parallel runs, not slower). `-target`
-   manual-order building genuinely processes `SVGKit` before its own
-   `CocoaLumberjack` dependency in the target graph -- one run got much
-   further (100+ SVGKit files compiled) purely by scheduling luck from an
-   already-warm package-resolution cache, not because of anything
-   reproducible. A real fix needs one of:
+   Ruled out on CI, each with a real test, not a guess: **not** a
+   build-parallelism race (`-jobs 1`, fully serial, failed *faster* than
+   parallel runs, not slower); **not** fixed by retrying (3 back-to-back
+   attempts in the same job, each starting from the previous attempt's
+   on-disk build products, all failed identically); **not** fixed by
+   dropping the separate `-resolvePackageDependencies` step and letting the
+   build action resolve packages itself. `-target` manual-order building
+   genuinely, consistently processes `SVGKit` before its own
+   `CocoaLumberjack` dependency in the target graph -- one earlier run got
+   much further (100+ SVGKit files compiled) purely by scheduling luck from
+   an already-warm package-resolution cache, not from anything reproducible.
+   **Conclusion: this is not fixable from CI. It needs a real Xcode GUI
+   session.** A real fix needs one of:
    - **A committed, working `.xcscheme`** (this project has none checked
      in; schemes correctly respect target dependency order, `-target`
      builds don't) with a Simulator destination actually configured -- do
