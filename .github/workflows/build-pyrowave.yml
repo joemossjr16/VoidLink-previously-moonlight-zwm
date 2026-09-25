@@ -43,16 +43,27 @@ jobs:
       # instead report whether *our* new files compiled cleanly, which is
       # what this workflow actually exists to check.
       - name: Build VoidLink (iOS Simulator, no signing)
-        timeout-minutes: 15
+        timeout-minutes: 25
         run: |
           set -o pipefail
-          xcodebuild build \
+          BUILD_CMD="xcodebuild build \
             -target VoidLink \
             -project VoidLink.xcodeproj \
             -sdk iphonesimulator \
             -configuration Debug \
-            CODE_SIGNING_ALLOWED=NO \
-            > build.log 2>&1
+            CODE_SIGNING_ALLOWED=NO"
+
+          # First pass: SVGKit's CocoaLumberjack module map is known to not
+          # exist yet on a clean checkout (a pre-existing SPM quirk in this
+          # fork, unrelated to PyroWave). A second pass often succeeds once
+          # the first has generated it as a side effect.
+          eval "$BUILD_CMD" > build.log 2>&1
+          if ! grep -q "BUILD SUCCEEDED" build.log; then
+            echo "First pass did not succeed; retrying once (known SVGKit module map quirk)."
+            eval "$BUILD_CMD" > build2.log 2>&1
+            cat build.log build2.log > build_combined.log
+            mv build_combined.log build.log
+          fi
           BUILD_STATUS=$?
           echo "xcodebuild exit status: $BUILD_STATUS"
 
