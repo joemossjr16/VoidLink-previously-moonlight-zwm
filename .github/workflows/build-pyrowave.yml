@@ -29,32 +29,18 @@ jobs:
         run: |
           xcodebuild -resolvePackageDependencies \
             -project VoidLink.xcodeproj \
-            -scheme VoidLink || \
-          xcodebuild -resolvePackageDependencies \
-            -project VoidLink.xcodeproj \
+            -derivedDataPath build_dd \
             -target VoidLink
 
       - name: Build VoidLink (iOS Simulator, no signing)
         timeout-minutes: 15
         run: |
           set -o pipefail
-          echo "--- Available runtimes ---"
-          xcrun simctl list runtimes available
-          echo "--- Available iOS devices ---"
-          xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | "\(.key): \(.value | map(.name) | join(", "))"'
-
-          SIM_UDID=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[0].udid' | head -1)
-          echo "Using simulator UDID: $SIM_UDID"
-          if grep -qE "^[[:space:]]+VoidLink$" schemes.log; then
-            BUILD_ARG="-scheme VoidLink"
-          else
-            BUILD_ARG="-target VoidLink"
-          fi
-          echo "Building with: $BUILD_ARG"
           xcodebuild build \
-            $BUILD_ARG \
+            -target VoidLink \
             -project VoidLink.xcodeproj \
-            -destination "platform=iOS Simulator,id=$SIM_UDID" \
+            -derivedDataPath build_dd \
+            -sdk iphonesimulator \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
             > build.log 2>&1
