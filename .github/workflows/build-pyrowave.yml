@@ -54,7 +54,7 @@ jobs:
               -sdk iphonesimulator \
               -configuration Debug \
               CODE_SIGNING_ALLOWED=NO \
-              > "build_attempt${attempt}.log" 2>&1
+              > "build_attempt${attempt}.log" 2>&1 || true
             if grep -q "BUILD SUCCEEDED" "build_attempt${attempt}.log"; then
               echo "BUILD SUCCEEDED on attempt $attempt"
               SUCCESS=1
