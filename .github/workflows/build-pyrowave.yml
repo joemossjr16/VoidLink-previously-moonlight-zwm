@@ -83,6 +83,7 @@ jobs:
             -I VoidLink/Stream \
             -I VoidLink/Utility \
             -I moonlight-common/moonlight-common-c/src \
+            -I libs/opus/include/opus \
             -F "$SDK/System/Library/Frameworks" \
             VoidLink/Stream/PyroWaveDecoderRenderer.m 2>&1 || FAIL=1
 
