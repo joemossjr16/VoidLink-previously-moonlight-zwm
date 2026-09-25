@@ -117,6 +117,24 @@ plane textures via compute shaders into a caller-supplied `id<MTLCommandBuffer>`
    issue**, if a real device build is wanted without waiting on upstream:
    this blocks the *whole* VoidLink target, not anything PyroWave-specific,
    and was already broken before this branch existed.
+   Ruled out on CI: it is **not** a build-parallelism race (`-jobs 1`, fully
+   serial, failed *faster* than parallel runs, not slower). `-target`
+   manual-order building genuinely processes `SVGKit` before its own
+   `CocoaLumberjack` dependency in the target graph -- one run got much
+   further (100+ SVGKit files compiled) purely by scheduling luck from an
+   already-warm package-resolution cache, not because of anything
+   reproducible. A real fix needs one of:
+   - **A committed, working `.xcscheme`** (this project has none checked
+     in; schemes correctly respect target dependency order, `-target`
+     builds don't) with a Simulator destination actually configured -- do
+     this from Xcode's GUI on a real Mac, not by hand-authoring the XML.
+   - **Xcode's own package-cache reset** (`File > Packages > Reset Package
+     Caches`, or `rm -rf ~/Library/Developer/Xcode/DerivedData` plus a
+     fresh `xcodebuild -resolvePackageDependencies`), which a local Xcode
+     session can do interactively in ways a blind CI loop can't.
+   - **Pinning SVGKit/CocoaLumberjack to different versions** if this is a
+     known upstream SPM bug (worth a quick search before spending more time
+     on it).
 7. **Code signing**, once the whole app builds: the user has an Apple
    Developer account already; needs a certificate + provisioning profile
    added as repo secrets to produce an installable IPA rather than a
