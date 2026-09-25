@@ -77,7 +77,7 @@ jobs:
             third_party/pyrowave-metal/pyrowave_bitstream.cpp 2>&1 || FAIL=1
 
           echo "=== Objective-C (our renderer) ==="
-          clang -fsyntax-only -fobjc-arc -x objective-c \
+          clang -fsyntax-only -fobjc-arc -fmodules -x objective-c \
             -isysroot "$SDK" -target arm64-apple-ios17.0-simulator \
             -I third_party/pyrowave-metal \
             -I VoidLink/Stream \
@@ -87,8 +87,12 @@ jobs:
             VoidLink/Stream/PyroWaveDecoderRenderer.m 2>&1 || FAIL=1
 
           echo "=== Metal shader (our present kernel) ==="
-          xcrun -sdk iphonesimulator metal -c VoidLink/Metal/PresentPyroWavePlanes.metal \
-            -o /tmp/PresentPyroWavePlanes.air 2>&1 || FAIL=1
+          if xcrun -sdk iphonesimulator metal -c VoidLink/Metal/PresentPyroWavePlanes.metal \
+            -o /tmp/PresentPyroWavePlanes.air 2>&1; then
+            echo "Metal shader compiled cleanly."
+          else
+            FAIL=1
+          fi
 
           if [ "$FAIL" -eq 1 ]; then
             echo "One or more PyroWave files failed to syntax-check -- see errors above."
