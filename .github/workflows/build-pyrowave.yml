@@ -37,16 +37,7 @@ jobs:
       - name: Build VoidLink (iOS Simulator, no signing)
         run: |
           set -o pipefail
-          SIM=$(xcrun simctl list devices available -j | python3 -c "
-import json, sys
-data = json.load(sys.stdin)
-for runtime, devices in data['devices'].items():
-    if 'iOS' not in runtime:
-        continue
-    for d in devices:
-        print(d['name'])
-        sys.exit(0)
-")
+          SIM=$(xcrun simctl list devices available -j | jq -r '.devices | to_entries[] | select(.key | contains("iOS")) | .value[0].name' | head -1)
           echo "Using simulator: $SIM"
           if grep -qE "^[[:space:]]+VoidLink$" schemes.log; then
             BUILD_ARG="-scheme VoidLink"
