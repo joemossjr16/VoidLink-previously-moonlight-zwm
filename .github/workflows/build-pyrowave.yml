@@ -46,19 +46,19 @@ jobs:
         continue-on-error: true
         timeout-minutes: 20
         run: |
-          # -parallelizeTargets NO: the SVGKit/CocoaLumberjack module map
-          # failure looks like a build-parallelism race (CocoaLumberjack's
-          # modulemap-generating phase vs. SVGKit's compile phase) rather
-          # than a hard error -- a previous run with identical Xcode/flags
-          # got much further (100+ SVGKit files compiled) before hitting the
-          # same error, pure scheduling luck. Serialize target builds so
-          # dependency order is deterministic instead of racy.
+          # -jobs 1: the SVGKit/CocoaLumberjack module map failure looks like
+          # a build-parallelism race (CocoaLumberjack's modulemap-generating
+          # phase vs. SVGKit's compile phase) rather than a hard error -- a
+          # previous run with identical Xcode/flags got much further (100+
+          # SVGKit files compiled) before hitting the same error, pure
+          # scheduling luck. Force fully serial execution so dependency
+          # order is deterministic instead of racy.
           xcodebuild build \
             -target VoidLink \
             -project VoidLink.xcodeproj \
             -sdk iphonesimulator \
             -configuration Debug \
-            -parallelizeTargets NO \
+            -jobs 1 \
             CODE_SIGNING_ALLOWED=NO \
             > build.log 2>&1 || true
           if grep -q "BUILD SUCCEEDED" build.log; then
