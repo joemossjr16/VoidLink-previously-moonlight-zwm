@@ -13,7 +13,7 @@
 //
 
 #import "PyroWaveDecoderRenderer.h"
-#import "Log.h"
+#import "Logger.h"
 
 #include "pyrowave_metal.h"
 

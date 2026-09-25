@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A70100000000000000000101 /* PyroWaveDecoderRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = A70100000000000000000102 /* PyroWaveDecoderRenderer.m */; };
+		A70100000000000000000103 /* PresentPyroWavePlanes.metal in Sources */ = {isa = PBXBuildFile; fileRef = A70100000000000000000104 /* PresentPyroWavePlanes.metal */; };
+		A70100000000000000000107 /* pyrowave_common.mm in Sources */ = {isa = PBXBuildFile; fileRef = A70100000000000000000108 /* pyrowave_common.mm */; };
+		A70100000000000000000109 /* pyrowave_decoder.mm in Sources */ = {isa = PBXBuildFile; fileRef = A7010000000000000000010A /* pyrowave_decoder.mm */; };
+		A7010000000000000000010C /* pyrowave_bitstream.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A7010000000000000000010D /* pyrowave_bitstream.cpp */; };
 		180E6E372E93BFDB0067C73A /* AlertControllerUtil.swift in Sources */ = {isa = PBXBuildFile; fileRef = 180E6E362E93BFDB0067C73A /* AlertControllerUtil.swift */; };
 		1817B61E2E6FD04D000D938D /* SafeTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1817B61D2E6FD04D000D938D /* SafeTimer.swift */; };
 		182760F72E83E2EA00EC1C5C /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = 182760F62E83E2EA00EC1C5C /* DequeModule */; };
@@ -334,6 +339,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		A70100000000000000000100 /* PyroWaveDecoderRenderer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PyroWaveDecoderRenderer.h; sourceTree = "<group>"; };
+		A70100000000000000000102 /* PyroWaveDecoderRenderer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PyroWaveDecoderRenderer.m; sourceTree = "<group>"; };
+		A70100000000000000000104 /* PresentPyroWavePlanes.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = PresentPyroWavePlanes.metal; sourceTree = "<group>"; };
+		A70100000000000000000105 /* pyrowave_metal.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "pyrowave_metal.h"; path = "third_party/pyrowave-metal/pyrowave_metal.h"; sourceTree = SOURCE_ROOT; };
+		A70100000000000000000106 /* pyrowave_common.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = "pyrowave_common.hpp"; path = "third_party/pyrowave-metal/pyrowave_common.hpp"; sourceTree = SOURCE_ROOT; };
+		A70100000000000000000108 /* pyrowave_common.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "pyrowave_common.mm"; path = "third_party/pyrowave-metal/pyrowave_common.mm"; sourceTree = SOURCE_ROOT; };
+		A7010000000000000000010A /* pyrowave_decoder.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = "pyrowave_decoder.mm"; path = "third_party/pyrowave-metal/pyrowave_decoder.mm"; sourceTree = SOURCE_ROOT; };
+		A7010000000000000000010B /* pyrowave_bitstream.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = "pyrowave_bitstream.hpp"; path = "third_party/pyrowave-metal/pyrowave_bitstream.hpp"; sourceTree = SOURCE_ROOT; };
+		A7010000000000000000010D /* pyrowave_bitstream.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = "pyrowave_bitstream.cpp"; path = "third_party/pyrowave-metal/pyrowave_bitstream.cpp"; sourceTree = SOURCE_ROOT; };
+		A7010000000000000000010E /* pyrowave_msl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "pyrowave_msl.h"; path = "third_party/pyrowave-metal/shaders/pyrowave_msl.h"; sourceTree = SOURCE_ROOT; };
 		180345E02E819877004AF36F /* libopus-sim.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libopus-sim.a"; sourceTree = "<group>"; };
 		180E6E362E93BFDB0067C73A /* AlertControllerUtil.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertControllerUtil.swift; sourceTree = "<group>"; };
 		1817B61D2E6FD04D000D938D /* SafeTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeTimer.swift; sourceTree = "<group>"; };
@@ -747,6 +762,7 @@
 		97E20DCE2E21647A000D5DCA /* Metal */ = {
 			isa = PBXGroup;
 			children = (
+				A70100000000000000000104 /* PresentPyroWavePlanes.metal */,
 				9777AAF22E2CF7A400D7FBAF /* Shaders-Linear.metal */,
 				97E20DC62E21647A000D5DCA /* MetalConfig.h */,
 				97E20DC72E21647A000D5DCA /* MetalVideoRenderer.h */,
@@ -1013,6 +1029,15 @@
 		FB89461519F646E200339C8A /* Stream */ = {
 			isa = PBXGroup;
 			children = (
+				A70100000000000000000100 /* PyroWaveDecoderRenderer.h */,
+				A70100000000000000000102 /* PyroWaveDecoderRenderer.m */,
+				A70100000000000000000105 /* pyrowave_metal.h */,
+				A70100000000000000000106 /* pyrowave_common.hpp */,
+				A70100000000000000000108 /* pyrowave_common.mm */,
+				A7010000000000000000010A /* pyrowave_decoder.mm */,
+				A7010000000000000000010B /* pyrowave_bitstream.hpp */,
+				A7010000000000000000010D /* pyrowave_bitstream.cpp */,
+				A7010000000000000000010E /* pyrowave_msl.h */,
 				FB89461619F646E200339C8A /* Connection.h */,
 				FB89461719F646E200339C8A /* Connection.m */,
 				FB89461819F646E200339C8A /* StreamConfiguration.h */,
@@ -1502,6 +1527,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A70100000000000000000101 /* PyroWaveDecoderRenderer.m in Sources */,
+				A70100000000000000000103 /* PresentPyroWavePlanes.metal in Sources */,
+				A70100000000000000000107 /* pyrowave_common.mm in Sources */,
+				A70100000000000000000109 /* pyrowave_decoder.mm in Sources */,
+				A7010000000000000000010C /* pyrowave_bitstream.cpp in Sources */,
 				A5E771022FFF100100000002 /* SettingsSwiftUI.swift in Sources */,
 				A5E771042FFF100100000004 /* SettingsControls.swift in Sources */,
 				A1D500022FFC000100000001 /* authored_haptics_engine.cpp in Sources */,
@@ -1798,6 +1828,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/moonlight-audio-haptics/include",
+					"$(PROJECT_DIR)/third_party/pyrowave-metal",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
 					"$(SDKROOT)/usr/include/libxml2/**",
@@ -1870,6 +1901,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/moonlight-audio-haptics/include",
+					"$(PROJECT_DIR)/third_party/pyrowave-metal",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
 					"$(SDKROOT)/usr/include/libxml2/**",
@@ -2049,6 +2081,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/moonlight-audio-haptics/include",
+					"$(PROJECT_DIR)/third_party/pyrowave-metal",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
 					"$(SDKROOT)/usr/include/libxml2/**",
@@ -2120,6 +2153,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)/third_party/moonlight-audio-haptics/include",
+					"$(PROJECT_DIR)/third_party/pyrowave-metal",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(PROJECT_DIR)/moonlight-common/moonlight-common-c/src",
 					"$(SDKROOT)/usr/include/libxml2/**",
