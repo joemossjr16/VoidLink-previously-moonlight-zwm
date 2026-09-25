@@ -44,15 +44,28 @@ jobs:
       # bypassing the Xcode project and its SVGKit dependency entirely.
       - name: Best-effort full xcodebuild (informational only)
         continue-on-error: true
-        timeout-minutes: 15
+        timeout-minutes: 20
         run: |
+          # -parallelizeTargets NO: the SVGKit/CocoaLumberjack module map
+          # failure looks like a build-parallelism race (CocoaLumberjack's
+          # modulemap-generating phase vs. SVGKit's compile phase) rather
+          # than a hard error -- a previous run with identical Xcode/flags
+          # got much further (100+ SVGKit files compiled) before hitting the
+          # same error, pure scheduling luck. Serialize target builds so
+          # dependency order is deterministic instead of racy.
           xcodebuild build \
             -target VoidLink \
             -project VoidLink.xcodeproj \
             -sdk iphonesimulator \
             -configuration Debug \
+            -parallelizeTargets NO \
             CODE_SIGNING_ALLOWED=NO \
             > build.log 2>&1 || true
+          if grep -q "BUILD SUCCEEDED" build.log; then
+            echo "BUILD SUCCEEDED"
+          else
+            echo "BUILD FAILED (see build.log artifact for full output)"
+          fi
           tail -n 100 build.log
 
       - name: Syntax-check PyroWave files directly (clang, bypassing SVGKit)
